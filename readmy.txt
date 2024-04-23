@@ -1,0 +1,15 @@
+     "copy": {
+                "name":"storagecopy",
+                "count":3
+            }
+
+
+copy block makes copy of the certain resource (in this case 3 times)
+
+
+___________
+
+"[concat(copyIndex(),'bazeyan222119999111')]", -------> function
+
+copyIndex() function returns how many times copy function has been repeted.
+concat('text1','text2')   == text1text2 (connection strings together)
