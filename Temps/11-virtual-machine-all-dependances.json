@@ -1,0 +1,188 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "functions": [],
+    "variables": {
+        "resourceLocation": "west us",
+        "vnetname": "app-network",
+        "storagename": "bazeyanstorage445566",
+        "nic-name": "app-nic"
+        
+    },
+    "resources": [
+         {
+            "name": "[variables('vnetname')]",
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2023-04-01",
+            "location": "[variables('resourceLocation')]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "SubnetA",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/24"
+                        }
+                    },
+                    {
+                        "name": "SubnetB",
+                        "properties": {
+                            "addressPrefix": "10.0.1.0/24"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "app-public-ip",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2023-04-01",
+            "location": "[variables('resourceLocation')]",
+            "sku":{
+                "name": "Basic"
+            },
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic"
+               
+            }
+        },
+        {
+            "name": "[variables('nic-name')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2023-04-01",
+            "location": "[variables('resourceLocation')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', 'app-network')]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', 'app-public-ip')]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', 'app-nsg')]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipConfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'app-network', 'SubnetA')]"
+                            },
+                            "publicIPAddress":{
+                               "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'app-public-ip')]"
+                            }
+
+                        }
+                    }
+                ],
+                "networkSecurityGroup":{
+                    "id":"[resourceId('Microsoft.Network/networkSecurityGroups', 'app-nsg')]"
+                }
+            }
+        },
+        {
+            "name": "[variables('storagename')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "tags": {
+                "displayName": "[variables('storagename')]"
+            },
+            "location": "[variables('resourceLocation')]",
+            "kind": "StorageV2",
+            "sku": {
+                "name": "Standard_LRS"
+                
+            }
+        },
+       {
+        "name": "app-nsg",
+        "type": "Microsoft.Network/networkSecurityGroups",
+        "apiVersion": "2023-04-01",
+        "location": "[variables('resourceLocation')]",
+        "properties": {
+            "securityRules": [
+                {
+                    "name": "Allow-RDP",
+                    "properties": {
+                        "description": "description",
+                        "protocol": "Tcp",
+                        "sourcePortRange": "*",
+                        "destinationPortRange": "3389",
+                        "sourceAddressPrefix": "*",
+                        "destinationAddressPrefix": "*",
+                        "access": "Allow",
+                        "priority": 100,
+                        "direction": "Inbound"
+                    }
+                },
+                {
+                    "name": "Allow-80",
+                    "properties": {
+                        "description": "description",
+                        "protocol": "Tcp",
+                        "sourcePortRange": "*",
+                        "destinationPortRange": "80",
+                        "sourceAddressPrefix": "*",
+                        "destinationAddressPrefix": "*",
+                        "access": "Allow",
+                        "priority": 110,
+                        "direction": "Inbound"
+                    }
+                }
+            ]
+        }
+        },
+    
+        {
+            "name": "app-vm",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2023-03-01",
+            "location": "[variables('resourceLocation')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storagename'))]",
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('nic-name'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_DS2_v2"
+                },
+                "osProfile": {
+                    "computerName": "app-vm",
+                    "adminUsername": "appuser",
+                    "adminPassword": "azure@123"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2022-Datacenter",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "windowsVM1OSDisk",
+                        "caching": "ReadWrite",
+                        "createOption": "FromImage"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nic-name'))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true,
+                        "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storagename'))).primaryEndpoints.blob]"
+                    }
+                }
+            }
+        }
+
+
+    ],
+    "outputs": {}
+}

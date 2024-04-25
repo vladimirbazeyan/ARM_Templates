@@ -1,1 +1,8 @@
 New-AzResourceGroupDeployment -ResourceGroupName ARM -TemplateFile temp01.json
+
+
+####parametrers on run
+New-AzResourceGroupDeployment -ResourceGroupName ARM -TemplateFile 09-parameters.json -resourceLocation "West US"
+
+##parameters from file
+New-AzResourceGroupDeployment -ResourceGroupName ARM -TemplateFile 10-parameters-with-file.json -TemplateParameterFile 10-parameters-with-file.parameters.json

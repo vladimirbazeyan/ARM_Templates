@@ -1,0 +1,90 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "resourceLocation":{
+            "type": "string",
+            "defaultValue": "North Europe",
+            "allowedValues": ["North Europe","West US"],
+            "metadata": {
+                "description": "from parameters"
+            }
+        }
+    },
+    "functions": [],
+    "variables": {
+        "resourceLocation": "west us"
+    },
+    "resources": [
+         {
+            "name": "app-network",
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2023-04-01",
+            "location": "[parameters('resourceLocation')]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "SubnetA",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/24"
+                        }
+                    },
+                    {
+                        "name": "SubnetB",
+                        "properties": {
+                            "addressPrefix": "10.0.1.0/24"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "app-public-ip",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2023-04-01",
+            "location": "[parameters('resourceLocation')]",
+            "sku":{
+                "name": "Basic"
+            },
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic"
+               
+            }
+        },
+        {
+            "name": "app-nic",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2023-04-01",
+            "location": "[parameters('resourceLocation')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', 'app-network')]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', 'app-public-ip')]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipConfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'app-network', 'SubnetA')]"
+                            },
+                            "publicIPAddress":{
+                               "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'app-public-ip')]"
+                            }
+
+                        }
+                    }
+                ]
+            }
+        }
+
+
+    ],
+    "outputs": {}
+}

@@ -17,8 +17,12 @@
                         "properties": {
                             "privateIPAllocationMethod": "Dynamic",
                             "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'virtualNetwork1', 'subnet1')]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'app-network', 'SubnetA')]"
+                            },
+                            "publicIPAddress":{
+                               "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'app-public-ip')]"
                             }
+
                         }
                     }
                 ]
