@@ -1,7 +1,15 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
-    "parameters": {},
+    "parameters": {
+        "vmpassword":{
+            "type": "string",
+            "metadata":{
+                "description":"please enter admin password"
+            }
+
+        }
+    },
     "functions": [],
     "variables": {
         "resourceLocation": "west us",
@@ -151,7 +159,7 @@
                 "osProfile": {
                     "computerName": "app-vm",
                     "adminUsername": "appuser",
-                    "adminPassword": "Azure@123"
+                    "adminPassword": "[parameters('vmpassword')]"
                 },
                 "storageProfile": {
                     "imageReference": {

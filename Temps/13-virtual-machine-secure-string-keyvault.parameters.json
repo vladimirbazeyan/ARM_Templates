@@ -1,0 +1,14 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vmpassword": {
+            "reference": {
+                "keyVault": {
+                    "id": "/subscriptions/dd3a2488-1a34-4741-b1ab-4527b955c565/resourceGroups/ARM/providers/Microsoft.KeyVault/vaults/bazeyankeyvault2233"
+                },
+                "secretName": "vmpass"
+            }
+        }
+    }
+}

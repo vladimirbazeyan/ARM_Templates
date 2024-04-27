@@ -1,0 +1,25 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "functions": [],
+    "variables": {
+        "resourceLocation":"West US"
+    },
+    "resources": [
+     {
+        "name": "app-av-set",
+        "type": "Microsoft.Compute/availabilitySets",
+        "apiVersion": "2023-03-01",
+        "location": "[variables('resourceLocation')]",
+        "sku":{
+            "name": "aligned"
+        },
+        "properties": {
+            "platformFaultDomainCount":3,
+            "platformUpdateDomainCount": 5
+        }
+     }
+    ],
+    "outputs": {}
+}

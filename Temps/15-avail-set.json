@@ -178,7 +178,11 @@
                         "enabled": true,
                         "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storagename'))).primaryEndpoints.blob]"
                     }
-                }
+                },
+                "availabilitySet": {
+                    "id" : "[resourceId('Microsoft.Compute/availabilitySets/', 'app-av-set')]"
+                 }
+                
             }
         }
 
